@@ -10,10 +10,11 @@
              [hidden]="stud.deleted"
              >
             <span class="badge">{{stud.id || '-' }}</span> {{stud.name}} <span>{{stud.hasChanges?'*':''}}</span><span class="badge" style="float: right;" (click)="delete(stud)">delete</span>
+            <input type="file" #file (change)="onChange(file.files, stud);" multiple />
         </div>
     </div>
     <div *ngIf="selectedStudent" class="student-detail">
-        <h2 *ngIf="selectedStudent.id > 0">{{selectedStudent.name}} ({{selectedStudent.id}})</h2>
+        <h2 *ngIf="selectedStudent.id > 0">{{selectedStudent.name}} ({{selectedStudent.id}})<!--<img src="{{selectedStudent.entryFee}}" alt="Smiley face" height="42" width="42">--></h2>
         <h2 *ngIf="!selectedStudent.id">New Student</h2>
         <div>
             <label>Name: </label>
@@ -23,7 +24,16 @@
             <label>Date Of Birth: </label>
             <input [(ngModel)]="selectedStudent.dateOfBirth" placeholder="birth" />
         </div>
+        <div>
+            <label>Photo: </label>
+            <!--<input type="file" name="file" (change)="handleFileSelect($event)"></div>-->
+        <ul>
+            <!--<li *ngFor="let f of files">{{ base64textString }}</li>-->
+            <img *ngIf="selectedStudent.photo != null" src="data:image/JPEG;base64,{{selectedStudent.photo}}" height="100" width="100">
+        </ul>
+
     </div>
+
 </div>
 
 <div id="floating-button" data-toggle="tooltip" data-placement="left" data-original-title="Create" (click)="saveChanges()">

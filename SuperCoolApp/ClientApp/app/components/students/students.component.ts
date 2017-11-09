@@ -11,9 +11,31 @@ import 'rxjs/add/observable/forkJoin';
 export class StudentsComponent {
     public students: Student[];
     public selectedStudent: Student | undefined;
+    private files: FileList;
+    private base64textString: String;
+    private filestudent: Student;
 
     constructor(private http: Http, @Inject('BASE_URL') private baseUrl: string) {
         this.refreshData();
+    }
+
+    onChange(files: FileList, student: Student) {
+        this.filestudent = student;
+        this.files = files;
+        var file = files[0];
+        if (files && file) {
+            var reader = new FileReader();
+
+            reader.onload = this._handleReaderLoaded.bind(this);
+            reader.readAsBinaryString(file);
+        }
+    }
+
+    _handleReaderLoaded(readerEvt: any) {
+        var binaryString = readerEvt.target.result;
+        this.base64textString = btoa(binaryString);
+        this.filed(this.filestudent);
+        console.log(btoa(binaryString));
     }
 
     async refreshData() {
@@ -26,6 +48,7 @@ export class StudentsComponent {
                 student.id = stud.id;
                 student.name = stud.name;
                 student.dateOfBirth = stud.dateOfBirth;
+                student.photo = stud.photo;
                 student.hasChanges = false;
                 studentList.push(student);
             }
@@ -114,6 +137,10 @@ export class StudentsComponent {
         student.deleted = true;
         this.selectStudent();
     }
+
+    filed(student: Student): void {
+        student.photo = this.base64textString;
+    }
 }
 
 class Student {
@@ -121,6 +148,8 @@ class Student {
 
     private _name: string = "";
     private _dateOfBirth: Date;
+    public _photo: String;
+    private _fileList: FileList;
     public hasChanges: boolean;
     public deleted: boolean = false;
 
@@ -133,6 +162,25 @@ class Student {
         console.log("set name");
     }
 
+    get fileList(): FileList {
+        return this._fileList;
+    }
+
+    set fileList(f: FileList) {
+        this._fileList = f;
+        this.hasChanges = true;
+        console.log("set fileList");
+    }
+
+    get photo(): String {
+        return this._photo;
+    }
+    set photo(n: String) {
+        this._photo = n;
+        this.hasChanges = true;
+        console.log("set file");
+    }
+
     get dateOfBirth(): Date {
         return this._dateOfBirth;
     }
@@ -142,11 +190,14 @@ class Student {
         console.log("set dateOfBirth");
     }
 
+
+
     public toJSON() {
         return {
             id: this.id,
             name: this._name,
             dateOfBirth: this._dateOfBirth,
+            photo: this._photo,
         };
     };
 }
